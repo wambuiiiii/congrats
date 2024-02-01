@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Congratulations!</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 90vh;
+      background-color: #000;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <audio id="fireworksAudio" autoplay>
+    <source src="img/fireworks.mp3" type="audio/mp3"> <!-- Replace with the actual path to your audio file -->
+    Your browser does not support the audio tag.
+  </audio>
+  <canvas id="fireworks"></canvas>
+  <h1 style="color: #fff; text-align: center;">Congratulations Sila!</h1>
+  <br><br>
+  <h1 style="color: #fff ">Tap Here!</h1>
+
+  <script>
+    const audio = document.getElementById('fireworksAudio');
+
+    function playPopSound() {
+      audio.play();
+    }
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function Particle(x, y, explosionColor) {
+      this.x = x;
+      this.y = y;
+      this.radius = 2;
+      this.color = explosionColor;
+      this.sx = random(-5, 5);
+      this.sy = random(-5, 5);
+      this.alpha = 1;
+      this.decay = random(0.015, 0.03);
+    }
+
+    Particle.prototype.update = function() {
+      this.x += this.sx;
+      this.y += this.sy;
+      this.alpha -= this.decay;
+    };
+
+    Particle.prototype.draw = function() {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    const fireworks = [];
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function createFirework() {
+      const x = random(0, window.innerWidth);
+      const y = window.innerHeight;
+
+      playPopSound();
+
+      for (let i = 0; i < 100; i++) {
+        const explosionColor = `hsla(${random(0, 360)}, 100%, 50%, 1)`;
+        const particle = new Particle(x, y, explosionColor);
+        fireworks.push(particle);
+      }
+    }
+
+    function updateFireworks() {
+      for (let i = fireworks.length - 1; i >= 0; i--) {
+        fireworks[i].update();
+
+        if (fireworks[i].alpha <= 0) {
+          fireworks.splice(i, 1);
+        }
+      }
+    }
+
+    function drawFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < fireworks.length; i++) {
+        fireworks[i].draw();
+      }
+    }
+
+    function animate() {
+      createFirework();
+      updateFireworks();
+      drawFireworks();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
